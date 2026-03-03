@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaraX — Personalize Your Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(170deg, #f0f4f8 0%, #e6eff5 50%, #e1e9f1 100%);
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            height: 54px;
+            background: #ffffff;
+            border-bottom: 1px solid #e1e5eb;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .tb-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tb-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1e7090, #349ab0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .tb-brand {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .tb-brand span {
+            color: #1e7090;
+        }
+
+        .tb-sub {
+            font-size: 10px;
+            color: #94a3b8;
+            display: block;
+            margin-top: -3px;
+        }
+
+        .tb-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .tb-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .tb-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+        }
+
+        .tb-dot.active {
+            background: #1e7090;
+            width: 22px;
+            border-radius: 4px;
+        }
+
+        .tb-step {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-left: 6px;
+        }
+
+        .tb-skip {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .tb-skip:hover {
+            color: #334155;
+        }
+
+        /* ── CONTENT ── */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 40px;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 1080px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .header h1 em {
+            font-style: normal;
+            color: #1e7090;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* ── QUESTIONS ROW ── */
+        .q-row {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .q-card {
+            background: #ffffff;
+            border: 1px solid #e1e5eb;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .q-card.completed {
+            border-color: #6ee7b7;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.08);
+        }
+
+        .q-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .q-title .q-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            font-size: 0;
+        }
+
+        .q-title .q-dot.done {
+            background: #10B981;
+            border-color: #10B981;
+        }
+
+        .q-title .q-dot.done::after {
+            content: '✓';
+            font-size: 12px;
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .q-hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            padding-left: 30px;
+        }
+
+        /* ── ROLE CHIPS GRID (3 cols) ── */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        /* ── USE CASE GRID (2 cols) ── */
+        .use-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            align-content: start;
+            height: 100%;
+        }
+
+        /* ── CHIP STYLE ── */
+        .chip {
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            user-select: none;
+            background: #f8fafc;
+        }
+
+        .chip:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .chip.sel {
+            border-color: #1e7090;
+            background: #f0f7f9;
+            color: #1e7090;
+            font-weight: 600;
+            box-shadow: 0 0 0 2px rgba(30, 112, 144, 0.1);
+        }
+
+        /* ── APPS & EXTENSION SECTION ── */
+        .apps-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.5fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .app-card {
+            background: #ffffff;
+            border: 1px solid #e1e5eb;
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-card .app-qr {
+            width: 90px;
+            height: 90px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            padding: 8px;
+        }
+
+        /* QR Code Base SVG */
+        .app-qr svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .app-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .app-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            width: 100%;
+            max-width: 160px;
+        }
+
+        .app-badge:hover {
+            background: #1e293b;
+        }
+
+        .app-badge .badge-sub {
+            font-size: 9px;
+            font-weight: 400;
+            opacity: 0.8;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .app-badge .badge-main {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .scan-text {
+            font-size: 11px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        /* ── CHROME EXTENSION CARD (HIGHLIGHTED) ── */
+        .ext-card {
+            background: linear-gradient(135deg, #f0f7fb, #e8f2f8);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .ext-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .ext-logo {
+            width: 48px;
+            height: 48px;
+            background: #ffffff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .ext-logo svg {
+            width: 24px;
+            height: 24px;
+            color: #0284c7;
+        }
+
+        .ext-info {
+            flex: 1;
+        }
+
+        .ext-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .ext-name span {
+            color: #0284c7;
+            font-weight: 700;
+        }
+
+        .ext-rec {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #059669;
+            background: #d1fae5;
+            padding: 3px 8px;
+            border-radius: 999px;
+            line-height: 1;
+        }
+
+        .ext-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .ext-cta-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .ext-cta {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0284c7;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .ext-cta:hover {
+            background: #f0f9ff;
+            border-color: #7dd3fc;
+        }
+
+        .ext-store {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .ext-store:hover {
+            background: #1e293b;
+        }
+
+        .ext-store-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ext-store-sub {
+            font-size: 9px;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .ext-store-main {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* ── CTA ROW ── */
+        .cta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .cta-btn {
+            padding: 16px 48px;
+            background: #1e7090;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0.5;
+            pointer-events: none;
+            min-width: 280px;
+            margin: 0 auto;
+            /* Center it */
+        }
+
+        .cta-btn.ready {
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 0 8px 24px rgba(30, 112, 144, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .cta-btn.ready:hover {
+            background: #155874;
+            box-shadow: 0 12px 32px rgba(30, 112, 144, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .skip-bottom {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .skip-bottom:hover {
+            color: #64748b;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .q-card {
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .q-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .app-card {
+            animation: fadeUp 0.4s ease both;
+            animation-delay: 0.2s;
+        }
+
+        .app-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .ext-card {
+            animation: fadeUp 0.4s ease both;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .q-row {
+                grid-template-columns: 1fr;
+            }
+
+            .apps-section {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ext-card {
+                grid-column: span 2;
+            }
+
+            html,
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .page {
+                height: auto;
+                min-height: 100vh;
+                padding-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="tb-left">
+                <div class="tb-icon">K</div>
+                <div>
+                    <div class="tb-brand">Kara<span>X</span></div>
+                    <span class="tb-sub">Workspace Setup</span>
+                </div>
+            </div>
+            <div class="tb-right">
+                <div class="tb-dots">
+                    <span class="tb-dot"></span>
+                    <span class="tb-dot"></span>
+                    <span class="tb-dot active"></span>
+                    <span class="tb-step">Final step</span>
+                </div>
+                <a class="tb-skip" href="#" onclick="skipAll()">Skip for now &rarr;</a>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="wrapper">
+                <!-- HEADER -->
+                <div class="header">
+                    <h1>You're almost <em>set!</em></h1>
+                    <p>Personalize your experience in two quick steps.</p>
+                </div>
+
+                <!-- QUESTIONS ROW -->
+                <div class="q-row">
+                    <!-- Q1: ROLE -->
+                    <div class="q-card" id="q1-card">
+                        <div class="q-title">
+                            <span class="q-dot" id="q1-dot"></span>
+                            Select your primary role
+                        </div>
+                        <div class="q-hint">We'll tailor workflows and tools to your profession</div>
+                        <div class="role-grid">
+                            <div class="chip" data-q="role" data-v="sales" onclick="pick(this)">Sales</div>
+                            <div class="chip" data-q="role" data-v="marketing" onclick="pick(this)">Marketing</div>
+                            <div class="chip" data-q="role" data-v="executive" onclick="pick(this)">Executive</div>
+                            <div class="chip" data-q="role" data-v="operations" onclick="pick(this)">Operations</div>
+                            <div class="chip" data-q="role" data-v="engineering" onclick="pick(this)">Engineering</div>
+                            <div class="chip" data-q="role" data-v="legal" onclick="pick(this)">Legal</div>
+                            <div class="chip" data-q="role" data-v="finance" onclick="pick(this)">Finance</div>
+                            <div class="chip" data-q="role" data-v="consulting" onclick="pick(this)">Consulting</div>
+                            <div class="chip" data-q="role" data-v="hr" onclick="pick(this)">HR / People</div>
+                            <div class="chip" data-q="role" data-v="student" onclick="pick(this)">Student</div>
+                            <div class="chip" data-q="role" data-v="other" onclick="pick(this)">Other</div>
+                            <div class="chip" data-q="role" data-v="founder" onclick="pick(this)">Founder</div>
+                        </div>
+                    </div>
+
+                    <!-- Q2: USE CASE -->
+                    <div class="q-card" id="q2-card">
+                        <div class="q-title">
+                            <span class="q-dot" id="q2-dot"></span>
+                            What is your main goal?
+                        </div>
+                        <div class="q-hint">Helps us set up your custom dashboard</div>
+                        <div class="use-grid">
+                            <div class="chip" data-q="use" data-v="meetings" onclick="pick(this)">Meeting Intelligence
+                            </div>
+                            <div class="chip" data-q="use" data-v="agents" onclick="pick(this)">AI Agents</div>
+                            <div class="chip" data-q="use" data-v="workflows" onclick="pick(this)">Automate Workflows
+                            </div>
+                            <div class="chip" data-q="use" data-v="all" onclick="pick(this)">All of the above</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPS & EXTENSION -->
+                <div class="apps-section">
+                    <!-- iOS -->
+                    <div class="app-card">
+                        <div class="app-qr">
+                            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="72" height="72" fill="white" />
+                                <rect x="4" y="4" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="7" y="7" width="14" height="14" rx="1" fill="white" />
+                                <rect x="10" y="10" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="48" y="4" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="51" y="7" width="14" height="14" rx="1" fill="white" />
+                                <rect x="54" y="10" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="4" y="48" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="7" y="51" width="14" height="14" rx="1" fill="white" />
+                                <rect x="10" y="54" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="28" y="4" width="4" height="4" fill="#0f172a" />
+                                <rect x="36" y="4" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="12" width="4" height="4" fill="#0f172a" />
+                                <rect x="40" y="12" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="36" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="44" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="4" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="12" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="20" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="36" width="4" height="4" fill="#0f172a" />
+                                <rect x="40" y="36" width="4" height="4" fill="#0f172a" />
+                                <rect x="52" y="36" width="4" height="4" fill="#0f172a" />
+                                <rect x="60" y="36" width="4" height="4" fill="#0f172a" />
+                                <rect x="32" y="44" width="4" height="4" fill="#0f172a" />
+                                <rect x="48" y="44" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="52" width="4" height="4" fill="#0f172a" />
+                                <rect x="48" y="52" width="4" height="4" fill="#0f172a" />
+                                <rect x="56" y="52" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="60" width="4" height="4" fill="#0f172a" />
+                                <rect x="40" y="60" width="4" height="4" fill="#0f172a" />
+                                <rect x="52" y="60" width="4" height="4" fill="#0f172a" />
+                                <rect x="64" y="60" width="4" height="4" fill="#0f172a" />
+                            </svg>
+                        </div>
+                        <div class="app-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M16.345 13.921c-.015-3.085 2.52-4.57 2.635-4.64-1.425-2.09-3.645-2.385-4.42-2.42-1.89-.195-3.69 1.115-4.66 1.115-.97 0-2.46-1.085-4.01-1.05-2.02.03-3.885 1.185-4.925 2.99-2.1 3.65-.54 9.04 1.515 12.025 1.01 1.485 2.21 3.16 3.82 3.1 1.54-.065 2.125-1.01 3.99-1.01 1.85 0 2.405.98 3.99 1.01 1.635.035 2.685-1.445 3.68-2.905 1.155-1.685 1.63-3.32 1.65-3.415-.035-.015-3.21-1.23-3.225-4.795zM15.545 4.795c.845-1.035 1.415-2.47.126-3.895-1.22.05-2.735.815-3.6 1.865-.775.925-1.455 2.41-.6 3.82 1.365.105 2.76-.715 3.56-1.79z" />
+                            </svg>
+                            iOS App
+                        </div>
+                        <a class="app-badge" href="#">
+                            <div class="ext-store-inner">
+                                <span class="badge-sub">Download on the</span>
+                                <span class="badge-main">App Store</span>
+                            </div>
+                        </a>
+                        <div class="scan-text">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                            </svg>
+                            Scan to download
+                        </div>
+                    </div>
+
+                    <!-- Android -->
+                    <div class="app-card">
+                        <div class="app-qr">
+                            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="72" height="72" fill="white" />
+                                <rect x="4" y="4" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="7" y="7" width="14" height="14" rx="1" fill="white" />
+                                <rect x="10" y="10" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="48" y="4" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="51" y="7" width="14" height="14" rx="1" fill="white" />
+                                <rect x="54" y="10" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="4" y="48" width="20" height="20" rx="2" fill="#0f172a" />
+                                <rect x="7" y="51" width="14" height="14" rx="1" fill="white" />
+                                <rect x="10" y="54" width="8" height="8" rx="1" fill="#0f172a" />
+                                <rect x="28" y="8" width="4" height="4" fill="#0f172a" />
+                                <rect x="36" y="8" width="4" height="4" fill="#0f172a" />
+                                <rect x="32" y="16" width="4" height="4" fill="#0f172a" />
+                                <rect x="40" y="16" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="32" width="4" height="4" fill="#0f172a" />
+                                <rect x="40" y="32" width="4" height="4" fill="#0f172a" />
+                                <rect x="8" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="16" y="32" width="4" height="4" fill="#0f172a" />
+                                <rect x="48" y="32" width="4" height="4" fill="#0f172a" />
+                                <rect x="56" y="28" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="40" width="4" height="4" fill="#0f172a" />
+                                <rect x="36" y="40" width="4" height="4" fill="#0f172a" />
+                                <rect x="48" y="40" width="4" height="4" fill="#0f172a" />
+                                <rect x="60" y="40" width="4" height="4" fill="#0f172a" />
+                                <rect x="32" y="48" width="4" height="4" fill="#0f172a" />
+                                <rect x="44" y="48" width="4" height="4" fill="#0f172a" />
+                                <rect x="28" y="56" width="4" height="4" fill="#0f172a" />
+                                <rect x="48" y="56" width="4" height="4" fill="#0f172a" />
+                                <rect x="60" y="56" width="4" height="4" fill="#0f172a" />
+                                <rect x="32" y="64" width="4" height="4" fill="#0f172a" />
+                                <rect x="44" y="64" width="4" height="4" fill="#0f172a" />
+                                <rect x="56" y="64" width="4" height="4" fill="#0f172a" />
+                            </svg>
+                        </div>
+                        <div class="app-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-1.0004 0-.5517.4482-.9999.9993-.9999.5516 0 .9998.4482.9998.9999 0 .5518-.4482 1.0004-.9998 1.0004zm-11.046 0c-.5516 0-.9998-.4486-.9998-1.0004 0-.5517.4482-.9999.9998-.9999.5511 0 .9993.4482.9993.9999 0 .5518-.4482 1.0004-.9993 1.0004zm11.436-7.2842l1.936-3.3533c.0614-.1065.025-.2426-.0814-.3042-.1058-.0611-.2418-.025-.3033.0814l-1.9567 3.3896C15.8206 7.108 13.9845 6.6496 12 6.6496c-1.9845 0-3.8206.4584-5.5085 1.2211L4.5348 4.4811c-.0615-.1064-.1974-.1425-.3033-.0814-.1064.0616-.1428.1977-.0814.3042l1.936 3.3533C2.8123 9.9406 1.0544 13.1166 1.0544 16.7112v.6366h21.8912v-.6366c0-3.5946-1.758-6.7706-4.032-8.654z" />
+                            </svg>
+                            Android App
+                        </div>
+                        <a class="app-badge" href="#">
+                            <div class="ext-store-inner">
+                                <span class="badge-sub">GET IT ON</span>
+                                <span class="badge-main">Google Play</span>
+                            </div>
+                        </a>
+                        <div class="scan-text">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                            </svg>
+                            Scan to download
+                        </div>
+                    </div>
+
+                    <!-- CHROME EXTENSION (HIGHLIGHTED) -->
+                    <div class="ext-card">
+                        <div class="ext-top">
+                            <div class="ext-logo">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <circle cx="12" cy="12" r="4" />
+                                    <line x1="21.17" y1="8" x2="12" y2="8" />
+                                    <line x1="3.95" y1="6.06" x2="8.54" y2="14" />
+                                    <line x1="10.88" y1="21.94" x2="15.46" y2="14" />
+                                </svg>
+                            </div>
+                            <div class="ext-info">
+                                <div class="ext-name">
+                                    Chrome Extension
+                                    <span class="ext-rec">Recommended</span>
+                                </div>
+                                <div class="ext-desc">Essential for automated meeting recordings and transcripts.</div>
+                            </div>
+                        </div>
+                        <div class="ext-cta-row">
+                            <a class="ext-cta" href="#" target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                                Add to Chrome
+                            </a>
+                            <a class="ext-store" href="#" target="_blank">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                    </path>
+                                </svg>
+                                <div class="ext-store-inner">
+                                    <span class="ext-store-sub">Available in the</span>
+                                    <span class="ext-store-main">Chrome Web Store</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA ROW -->
+                <div class="cta-row">
+                    <button class="cta-btn" id="cta-btn" onclick="launch()">
+                        Launch Workspace
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                    <a class="skip-bottom" href="#" onclick="skipAll()">Skip setup</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = { role: null, use: null };
+
+        function pick(el) {
+            const q = el.dataset.q;
+            const chips = document.querySelectorAll(`.chip[data-q="${q}"]`);
+            chips.forEach(c => c.classList.remove('sel'));
+            el.classList.add('sel');
+            state[q] = el.dataset.v;
+
+            const dotId = q === 'role' ? 'q1-dot' : 'q2-dot';
+            const cardId = q === 'role' ? 'q1-card' : 'q2-card';
+            document.getElementById(dotId).classList.add('done');
+            document.getElementById(cardId).classList.add('completed');
+
+            validate();
+        }
+
+        function validate() {
+            const btn = document.getElementById('cta-btn');
+            if (state.role || state.use) {
+                btn.classList.add('ready');
+            } else {
+                btn.classList.remove('ready');
+            }
+        }
+
+        function launch() {
+            const btn = document.getElementById('cta-btn');
+            if (!btn.classList.contains('ready')) return;
+
+            btn.style.width = btn.offsetWidth + "px"; // Maintain width
+            btn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation: spinner 0.8s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            Preparing...
+        `;
+            btn.style.pointerEvents = 'none';
+            btn.style.boxShadow = 'none';
+            btn.style.transform = 'none';
+
+            setTimeout(() => {
+                btn.innerHTML = 'Workspace Ready!';
+                btn.style.background = '#10B981';
+            }, 1500);
+        }
+
+        function skipAll() {
+            const btn = document.getElementById('cta-btn');
+            btn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation: spinner 0.8s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            Loading...
+        `;
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                btn.innerHTML = 'Skipped';
+                btn.style.background = '#64748b';
+            }, 1200);
+        }
+    </script>
+
+</body>
+
+</html>
